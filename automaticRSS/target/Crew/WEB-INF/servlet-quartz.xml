@@ -1,0 +1,58 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="mailTask" class="mvc.app.MailTask" />
+
+	<!-- specifing class and method that is going to be called on a specified time basis -->
+	<bean id="mailJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="mailTask" />
+		<property name="targetMethod" value="printMe" />
+	</bean>
+
+	<!--
+	<bean id="runMeJob"
+            class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="runMeTask" />
+		<property name="targetMethod" value="printMe" />
+	</bean>
+	-->
+
+	<!-- Simple Trigger, run every 5 seconds -->
+<!--  	<bean id="mailTrigger"
+                class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+
+ 		<property name="jobDetail" ref="mailJob" />
+		<property name="repeatInterval" value="1000" />
+		<property name="startDelay" value="1000" />
+
+	</bean>  -->
+
+	<!-- Cron Trigger, run every 5 seconds -->
+ 	<bean id="mailTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="mailJob" />
+		<property name="cronExpression" value="0/1 * * * * ?" /> 
+	</bean> 
+	
+
+	<!-- scheduler factory bean to bind,the executing code and time intervals together -->
+ 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+ 		<property name="autoStartup">
+			<value>true</value>
+		</property>
+		<property name="jobDetails">
+			<list>
+				<ref bean="mailJob" />
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref bean="mailTrigger" />
+			</list>
+		</property>
+	</bean>
+	
+
+</beans>
